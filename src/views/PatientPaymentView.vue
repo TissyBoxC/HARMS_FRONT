@@ -1,0 +1,15 @@
+<script setup lang="ts">
+import { onMounted, ref } from 'vue'
+import { ArrowLeft, Check, CircleAlert, RotateCcw } from 'lucide-vue-next'
+import { RouterLink, useRoute } from 'vue-router'
+import { ApiError } from '@/api/http'
+import { getPayment, refundPayment } from '@/api/payment'
+import type { PaymentRecord } from '@/types/user'
+const route=useRoute();const item=ref<PaymentRecord|null>(null);const loading=ref(true);const saving=ref(false);const notice=ref('');const errorMessage=ref('')
+const load=async()=>{try{item.value=await getPayment(Number(route.params.id))}catch(error){errorMessage.value=error instanceof ApiError?error.message:'支付记录加载失败，请稍后重试。'}finally{loading.value=false}}
+const refund=async()=>{if(!item.value)return;saving.value=true;errorMessage.value='';try{await refundPayment(item.value.id);item.value={...item.value,status:5};notice.value='退款已提交'}catch(error){errorMessage.value=error instanceof ApiError?error.message:'退款失败，请稍后重试。'}finally{saving.value=false}}
+onMounted(load)
+</script>
+<template><div class="page"><RouterLink class="back" to="/patient/appointments"><ArrowLeft :size="16"/>返回我的预约</RouterLink><header><p>支付记录</p><h1>支付详情</h1></header><div v-if="loading" class="state">正在加载支付记录…</div><div v-else-if="errorMessage" class="notice error"><CircleAlert :size="16"/>{{errorMessage}}</div><template v-else-if="item"><div v-if="notice" class="notice success"><Check :size="16"/>{{notice}}</div><section class="card"><div><span>支付单号</span><strong>{{item.payment_no}}</strong></div><div><span>预约编号</span><strong>{{item.appointment_id}}</strong></div><div><span>金额</span><strong>¥{{Number(item.amount).toFixed(2)}}</strong></div><div><span>支付时间</span><strong>{{item.paid_at||'未记录'}}</strong></div><div><span>状态</span><strong>{{item.status===2?'已支付':item.status===5?'已退款':'处理中'}}</strong></div></section><button v-if="item.status===2" class="refund" type="button" :disabled="saving" @click="refund"><RotateCcw :size="16"/>{{saving?'处理中':'申请退款'}}</button></template></div></template>
+<style scoped>.page{width:min(100% - 48px,820px);margin:0 auto;padding:72px 0 110px}.back{display:inline-flex;align-items:center;gap:7px;color:#2563eb;font-size:13px;text-decoration:none}.page header{margin:28px 0 24px}.page header p{color:#2563eb;font-size:12px;font-weight:700}.page h1{margin-top:8px;font-size:30px}.card{padding:24px;display:grid;grid-template-columns:repeat(2,1fr);gap:18px;background:#fff;border:1px solid #e2e8f0;border-radius:8px}.card div{display:grid;gap:6px}.card span{color:#64748b;font-size:12px}.card strong{font-size:14px}.refund{margin-top:18px;min-height:40px;padding:0 14px;display:inline-flex;align-items:center;gap:7px;color:#fff;background:#2563eb;border:0;border-radius:6px;cursor:pointer}.notice{padding:12px;display:flex;gap:7px;border-radius:7px}.notice.success{color:#166534;background:#dcfce7}.notice.error{color:#b91c1c;background:#fee2e2}.state{padding:48px;color:#64748b;text-align:center}@media(max-width:620px){.card{grid-template-columns:1fr}}
+</style>

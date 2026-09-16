@@ -1,0 +1,81 @@
+:root {
+  --canvas: #eceee9;
+  --surface: #f7f7f3;
+  --surface-strong: #ffffff;
+  --ink: #202724;
+  --muted: #65706b;
+  --faint: #919a95;
+  --border: #d7dcd7;
+  --border-strong: #b9c1bc;
+  --primary: #315f50;
+  --primary-hover: #264b3f;
+  --primary-soft: #e5ede9;
+  --success: #3f735f;
+  --danger: #a14b40;
+  --danger-soft: #f4e7e3;
+  --font-serif: 'Noto Serif SC', 'Songti SC', 'SimSun', Georgia, serif;
+  --font-sans: Inter, 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  color: var(--ink);
+  background: var(--canvas);
+  font-family: var(--font-sans);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+  background: var(--canvas);
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background: var(--canvas);
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button,
+a,
+input,
+textarea,
+label {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--primary) 62%, transparent);
+  outline-offset: 3px;
+}
+
+button {
+  letter-spacing: 0;
+}
+
+p,
+h1,
+h2,
+h3,
+ol {
+  margin: 0;
+}
+
+::selection {
+  color: var(--surface);
+  background: var(--primary);
+}

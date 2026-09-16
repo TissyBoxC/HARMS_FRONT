@@ -1,0 +1,10 @@
+<script setup lang="ts">
+import { onMounted, ref } from 'vue'
+import { CircleAlert, Eye, Pill } from 'lucide-vue-next'
+import { RouterLink } from 'vue-router'
+import { ApiError } from '@/api/http'
+import { getPatientPrescriptions } from '@/api/clinical'
+const items=ref<Record<string,unknown>[]>([]);const loading=ref(true);const errorMessage=ref('');const label=(s:number)=>s===1?'草稿':s===2?'待取药':'已取药';onMounted(async()=>{try{items.value=await getPatientPrescriptions()}catch(e){errorMessage.value=e instanceof ApiError?e.message:'处方列表加载失败，请稍后重试。'}finally{loading.value=false}})
+</script>
+<template><div class="page"><header><p>就诊记录</p><h1>我的处方</h1></header><div v-if="errorMessage" class="notice"><CircleAlert :size="16"/>{{errorMessage}}</div><div v-if="loading" class="state">正在加载处方…</div><div v-else-if="!items.length" class="state">暂无处方记录。</div><div v-else class="list"><article v-for="item in items" :key="Number(item.id)"><Pill :size="19"/><div><strong>{{item.prescription_no||`处方 ${item.id}`}}</strong><small>{{item.doctor_name||'医生'}} · {{label(Number(item.status))}} · {{item.visit_no||''}}</small></div><RouterLink class="icon" :to="`/patient/prescriptions/${item.id}`" title="查看处方"><Eye :size="15"/></RouterLink></article></div></div></template>
+<style scoped>.page{width:min(100% - 48px,900px);margin:0 auto;padding:72px 0}.page header{margin-bottom:22px}.page header p{color:var(--primary);font-size:12px;font-weight:700}.page h1{margin-top:8px;font-family:var(--font-serif);font-size:32px}.list{display:grid;gap:8px}.list article{padding:15px;display:flex;align-items:center;gap:10px;background:var(--surface-strong);border:1px solid var(--border);border-radius:7px}.list article>svg{color:var(--primary)}.list strong,.list small{display:block}.list small{margin-top:4px;color:var(--muted);font-size:12px}.icon{margin-left:auto;width:32px;height:32px;display:grid;place-items:center;color:var(--primary);background:var(--primary-soft);border:1px solid var(--border);border-radius:5px}.notice{padding:11px;display:flex;gap:7px;color:var(--danger);background:var(--danger-soft);border-radius:6px}.state{padding:40px;color:var(--muted)}</style>

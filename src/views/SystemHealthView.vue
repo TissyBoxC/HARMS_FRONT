@@ -1,0 +1,14 @@
+<script setup lang="ts">
+import { onMounted, ref } from 'vue'
+import { Activity, ArrowLeft, CircleAlert, RefreshCw } from 'lucide-vue-next'
+import { RouterLink } from 'vue-router'
+import WorkspaceLayout from '@/components/WorkspaceLayout.vue'
+import { ApiError } from '@/api/http'
+import { getSystemHealth } from '@/api/system'
+const data = ref<Record<string, unknown>>({}); const loading = ref(true); const errorMessage = ref(''); const checkedAt = ref('')
+const load = async () => { loading.value = true; errorMessage.value = ''; try { data.value = await getSystemHealth(); checkedAt.value = new Date().toLocaleString('zh-CN') } catch (error) { errorMessage.value = error instanceof ApiError ? error.message : '系统状态暂时无法获取。' } finally { loading.value = false } }
+const entries = () => Object.entries(data.value)
+onMounted(load)
+</script>
+<template><WorkspaceLayout role="admin"><div class="page"><RouterLink class="back" to="/admin/home"><ArrowLeft :size="16" />返回管理概览</RouterLink><header><p>系统维护</p><h1>系统状态</h1><button class="refresh" type="button" :disabled="loading" @click="load"><RefreshCw :size="15" />刷新</button></header><div v-if="errorMessage" class="notice"><CircleAlert :size="16" />{{ errorMessage }}</div><div v-if="loading" class="state">正在检查系统状态…</div><template v-else><section class="status"><Activity :size="30" /><div><strong>{{ String(data.status || data.health || '运行正常') }}</strong><small>最近检查：{{ checkedAt }}</small></div></section><div class="list"><article v-for="entry in entries()" :key="entry[0]"><span>{{ entry[0] }}</span><strong>{{ typeof entry[1] === 'object' ? JSON.stringify(entry[1]) : String(entry[1]) }}</strong></article></div></template></div></WorkspaceLayout></template>
+<style scoped>.page{max-width:900px}.back{display:inline-flex;align-items:center;gap:7px;color:#2563eb;text-decoration:none;font-size:13px}.page header{margin:28px 0 24px;display:flex;align-items:flex-end;gap:14px}.page header p{position:absolute;color:#2563eb;font-size:12px;font-weight:700}.page h1{padding-top:23px;font-size:30px}.refresh{margin-left:auto;min-height:34px;padding:0 10px;display:inline-flex;align-items:center;gap:6px;color:#2563eb;background:#eff6ff;border:1px solid #bfdbfe;border-radius:5px;cursor:pointer}.status{padding:24px;display:flex;align-items:center;gap:14px;color:#166534;background:#dcfce7;border:1px solid #bbf7d0;border-radius:8px}.status strong,.status small{display:block}.status strong{font-size:19px}.status small{margin-top:4px;color:#4d7c5c;font-size:12px}.list{margin-top:16px;display:grid;gap:8px}.list article{padding:14px;display:flex;justify-content:space-between;gap:18px;background:#fff;border:1px solid #e2e8f0;border-radius:7px}.list span{color:#64748b;font-size:12px}.list strong{max-width:70%;font-size:13px;text-align:right;word-break:break-word}.notice{padding:12px;display:flex;gap:7px;color:#b91c1c;background:#fee2e2;border-radius:6px}.state{padding:45px;color:#64748b;text-align:center}</style>

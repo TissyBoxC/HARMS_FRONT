@@ -1,0 +1,12 @@
+<script setup lang="ts">
+import { reactive, ref } from 'vue'
+import { ArrowLeft, Check, CircleAlert, RotateCcw } from 'lucide-vue-next'
+import { RouterLink } from 'vue-router'
+import WorkspaceLayout from '@/components/WorkspaceLayout.vue'
+import { ApiError } from '@/api/http'
+import { adminRefundPayment } from '@/api/payment'
+const form=reactive({payment_id:''});const saving=ref(false);const notice=ref('');const errorMessage=ref('')
+const submit=async()=>{saving.value=true;notice.value='';errorMessage.value='';try{await adminRefundPayment(Number(form.payment_id));notice.value='退款已提交';form.payment_id=''}catch(error){errorMessage.value=error instanceof ApiError?error.message:'退款失败，请稍后重试。'}finally{saving.value=false}}
+</script>
+<template><WorkspaceLayout role="admin"><div class="page"><RouterLink class="back" to="/admin/appointments"><ArrowLeft :size="16"/>返回预约查询</RouterLink><header><p>支付管理</p><h1>管理员退款</h1></header><div v-if="notice" class="notice success"><Check :size="16"/>{{notice}}</div><div v-if="errorMessage" class="notice error"><CircleAlert :size="16"/>{{errorMessage}}</div><form class="form" @submit.prevent="submit"><label>支付记录编号<input v-model="form.payment_id" type="number" min="1" required placeholder="请输入支付记录编号"/></label><button class="primary" type="submit" :disabled="saving"><RotateCcw :size="16"/>{{saving?'处理中':'确认退款'}}</button></form></div></WorkspaceLayout></template>
+<style scoped>.page{max-width:760px}.back{display:inline-flex;align-items:center;gap:7px;color:#2563eb;text-decoration:none;font-size:13px}.page header{margin:28px 0 24px}.page header p{color:#2563eb;font-size:12px;font-weight:700}.page h1{margin-top:8px;font-size:30px}.form{padding:24px;display:grid;grid-template-columns:1fr auto;align-items:end;gap:12px;background:#fff;border:1px solid #e2e8f0;border-radius:8px}.form label{display:grid;gap:7px;color:#475569;font-size:12px;font-weight:600}.form input{min-height:42px;padding:0 11px;background:#f8fafc;border:1px solid #dbe3ec;border-radius:6px}.primary{min-height:42px;padding:0 15px;display:inline-flex;align-items:center;gap:7px;color:#fff;background:#2563eb;border:0;border-radius:6px;cursor:pointer}.notice{margin-bottom:14px;padding:12px;display:flex;gap:7px;border-radius:6px}.notice.success{color:#166534;background:#dcfce7}.notice.error{color:#b91c1c;background:#fee2e2}@media(max-width:620px){.form{grid-template-columns:1fr}}</style>

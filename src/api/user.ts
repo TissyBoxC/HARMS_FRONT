@@ -6,6 +6,11 @@ import type {
   RegisterResult,
 } from '@/types/user'
 
+/**
+ * 用户认证接口
+ *
+ * 包含登录、当前用户查询、退出登录和患者注册。
+ */
 export const loginUser = (payload: LoginCredentials) =>
   requestJson<LoginResult>('/api/users/login', {
     method: 'POST',

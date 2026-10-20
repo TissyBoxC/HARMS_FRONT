@@ -22,7 +22,30 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+
+# Frontend build output
+dist/
+
+# TypeScript and tool caches
+*.tsbuildinfo
+.vite/
+coverage/
+temp/
+tmp/
+
+# Operating system and editor artifacts
+.DS_Store
+Thumbs.db
+*.bak
+*.old
+*.orig
+*.rej
+*.swp
+$null
+
+# Local workspace metadata
 .learnings/
 .vscode/
 .git/
 node_modules/
+/.learnings

@@ -1,3 +1,8 @@
+/**
+ * 前端应用入口
+ *
+ * 引入全局样式，创建 Vue 应用，注册路由并挂载根组件。
+ */
 import './assets/main.css'
 
 import { createApp } from 'vue'

@@ -1,13 +1,20 @@
 import type { PatientRegisterRequest, RegisterFormErrors, RegisterFormState } from '@/types/user'
 
+/**
+ * 患者注册校验工具
+ *
+ * 负责校验注册表单并把页面使用的出生年月日字段组合成后端接受的数据格式。
+ */
 const USERNAME_PATTERN = /^[A-Za-z0-9_]+$/
 const PHONE_PATTERN = /^[0-9+()\-\s]+$/
 
+// 选填字段为空时统一提交 null，避免把仅含空格的文本写入后端。
 const optionalValue = (value: string) => {
   const normalized = value.trim()
   return normalized || null
 }
 
+// 使用本地日期判断出生日期是否晚于今天，避免时区转换造成边界误差。
 const getLocalDate = () => {
   const now = new Date()
   const year = now.getFullYear()
@@ -16,6 +23,7 @@ const getLocalDate = () => {
   return `${year}-${month}-${day}`
 }
 
+// 生成后端需要的 yyyy-MM-dd 出生日期，并识别缺项、非法日期和未来日期。
 const createBirthday = (form: RegisterFormState) => {
   const yearText = form.birthdayYear.trim()
   const monthText = form.birthdayMonth.trim()
@@ -53,6 +61,11 @@ const createBirthday = (form: RegisterFormState) => {
   return `${yearText}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
 }
 
+/**
+ * 校验患者注册表单
+ *
+ * 校验范围包括账号、密码、身份信息、出生日期、联系方式、紧急联系人和用户确认。
+ */
 export const validateRegisterForm = (form: RegisterFormState): RegisterFormErrors => {
   const errors: RegisterFormErrors = {}
   const username = form.username.trim()
@@ -128,6 +141,7 @@ export const validateRegisterForm = (form: RegisterFormState): RegisterFormError
   return errors
 }
 
+// 将页面表单转换为注册接口请求体，前端只负责整理字段，账号创建规则仍由后端校验。
 export const createRegisterPayload = (form: RegisterFormState): PatientRegisterRequest => ({
   username: form.username.trim(),
   password: form.password,

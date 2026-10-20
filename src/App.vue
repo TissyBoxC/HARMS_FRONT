@@ -1,4 +1,10 @@
 <script setup lang="ts">
+/**
+ * 应用根组件
+ *
+ * 负责公共站点的页头、页脚、登录状态操作和路由出口；
+ * 工作台页面沿用各自布局，不重复显示公共导航。
+ */
 import { computed } from 'vue'
 import {
   CalendarDays,
@@ -15,11 +21,25 @@ import { useAuth } from '@/stores/auth'
 const router = useRouter()
 const route = useRoute()
 const { currentUser, isAuthenticated, rolePath, signOut } = useAuth()
-const isPatient = computed(() => currentUser.value?.primary_role === 'PATIENT' || currentUser.value?.primary_role === 'ADMIN')
-const isWorkspace = computed(
-  () => route.path.startsWith('/doctor/') || route.path.startsWith('/admin/') || route.path.startsWith('/registration/') || route.path.startsWith('/pharmacy/') || route.path.startsWith('/department/'),
+
+// 患者账号和管理员账号共享面向患者的业务入口。
+const isPatient = computed(
+  () =>
+    currentUser.value?.primary_role === 'PATIENT' ||
+    currentUser.value?.primary_role === 'ADMIN',
 )
 
+// 工作台页面自行管理侧栏和页头，因此隐藏公共站点导航。
+const isWorkspace = computed(
+  () =>
+    route.path.startsWith('/doctor/') ||
+    route.path.startsWith('/admin/') ||
+    route.path.startsWith('/registration/') ||
+    route.path.startsWith('/pharmacy/') ||
+    route.path.startsWith('/department/'),
+)
+
+// 清理当前登录会话，并返回登录页。
 const handleLogout = async () => {
   await signOut()
   await router.replace('/login')
@@ -62,17 +82,25 @@ const handleLogout = async () => {
         </nav>
 
         <div class="header-actions">
-          <RouterLink v-if="!isAuthenticated" class="header-action header-action-light" to="/login">
+          <RouterLink
+            v-if="!isAuthenticated"
+            class="header-action header-action-light"
+            to="/login"
+          >
             <LogIn :size="16" :stroke-width="1.8" />
             登录
           </RouterLink>
-          <RouterLink v-if="!isAuthenticated" class="header-action" to="/register"
-            >创建账号</RouterLink
-          >
+          <RouterLink v-if="!isAuthenticated" class="header-action" to="/register">
+            创建账号
+          </RouterLink>
           <span v-if="isAuthenticated" class="user-greeting">{{
             currentUser?.display_name || currentUser?.username
           }}</span>
-          <RouterLink v-if="isAuthenticated && currentUser" class="header-action" :to="rolePath(currentUser.primary_role)">
+          <RouterLink
+            v-if="isAuthenticated && currentUser"
+            class="header-action"
+            :to="rolePath(currentUser.primary_role)"
+          >
             我的工作台
           </RouterLink>
           <button
